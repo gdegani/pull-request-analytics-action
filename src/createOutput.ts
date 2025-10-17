@@ -2,6 +2,7 @@ import * as core from "@actions/core";
 import { getMultipleValuesInput, getValueAsIs } from "./common/utils";
 import { Collection } from "./converters";
 import { createMarkdown } from "./view/";
+import { createTSV } from "./outputs/tsv";
 import { clearComments, createComment, createIssue } from "./requests";
 import {
   createDependencyMarkdown,
@@ -138,6 +139,11 @@ export const createOutput = async (
       );
       console.log("Markdown successfully generated.");
       core.setOutput("MARKDOWN", markdown);
+    }
+    if (outcome === "tsv") {
+      const tsv = createTSV(data, users, dates);
+      console.log("TSV successfully generated.");
+      core.setOutput("TSV", tsv);
     }
     if (outcome === "collection") {
       core.setOutput("JSON_COLLECTION", JSON.stringify(data));

@@ -110,7 +110,7 @@ inputs:
     description: "Timezone to use in action"
     required: false
   EXECUTION_OUTCOME:
-    description: "Outcome format separated by comma. Can take values: 'markdown', 'new-issue', 'collection', 'existing-issue'"
+    description: "Outcome format separated by comma. Can take values: 'markdown', 'tsv', 'new-issue', 'collection', 'existing-issue'"
     required: false
     default: "new-issue"
   ISSUE_NUMBER:
@@ -138,6 +138,8 @@ outputs:
     description: "JSON string with stats"
   MARKDOWN:
     description: "Markdown text with a report"
+  TSV:
+    description: "TSV text with a report"
 runs:
   using: "node20"
   main: "build/index.js"

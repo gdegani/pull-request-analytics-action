@@ -1,0 +1,5 @@
+# Example workflow config to produce TSV output
+EXECUTION_OUTCOME: tsv
+SHOW_STATS_TYPES: timeline, workload, pr-quality
+AMOUNT: 50
+PERIOD_SPLIT_UNIT: months

@@ -296,6 +296,7 @@ Below is a table describing the possible outputs of **pull-request-analytics-act
 | ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `JSON_COLLECTION` | A string output containing a JSON object with all the data collected by the action. To receive this output, add `collection` to `EXECUTION_OUTCOME`. |
 | `MARKDOWN`        | An output containing the report as a markdown string. To receive this output, add `markdown` to `EXECUTION_OUTCOME`.                                 |
+| `TSV`             | An output containing the report as a TSV string. To receive this output, add `tsv` to `EXECUTION_OUTCOME`.                                      |
 
 ## Recommendations and Tips
 

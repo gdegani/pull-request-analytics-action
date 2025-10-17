@@ -1776,6 +1776,7 @@ exports.createOutput = void 0;
 const core = __importStar(__nccwpck_require__(42186));
 const utils_1 = __nccwpck_require__(41002);
 const view_1 = __nccwpck_require__(55379);
+const tsv_1 = __nccwpck_require__(24146);
 const requests_1 = __nccwpck_require__(49591);
 const utils_2 = __nccwpck_require__(92884);
 const octokit_1 = __nccwpck_require__(75455);
@@ -1874,6 +1875,11 @@ const createOutput = async (data) => {
             console.log("Markdown successfully generated.");
             core.setOutput("MARKDOWN", markdown);
         }
+        if (outcome === "tsv") {
+            const tsv = (0, tsv_1.createTSV)(data, users, dates);
+            console.log("TSV successfully generated.");
+            core.setOutput("TSV", tsv);
+        }
         if (outcome === "collection") {
             core.setOutput("JSON_COLLECTION", JSON.stringify(data));
         }
@@ -1950,6 +1956,41 @@ exports.octokit = new octokit_1.Octokit({
         enabled: true,
     },
 });
+
+
+/***/ }),
+
+/***/ 24146:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.createTSV = void 0;
+const flattenRow = (row, headers) => headers.map((h) => (row[h] === undefined || row[h] === null ? "" : String(row[h]))).join("\t");
+const createTSV = (data, users, dates) => {
+    // Produce a simple TSV: header row then one row per user per date with some basic metrics
+    const headers = ["date", "user", "total_merged", "total_opened", "total_comments"];
+    const rows = [];
+    rows.push(headers.join("\t"));
+    for (const date of dates) {
+        for (const user of users) {
+            // `data` is shaped as data[user][date] = Collection, with a special 'total' key
+            const collection = data[user]?.[date] || {};
+            const row = {
+                date,
+                user,
+                total_merged: collection.merged || 0,
+                total_opened: collection.opened || 0,
+                total_comments: collection.comments || 0,
+            };
+            rows.push(flattenRow(row, headers));
+        }
+    }
+    return rows.join("\n");
+};
+exports.createTSV = createTSV;
+exports["default"] = exports.createTSV;
 
 
 /***/ }),
