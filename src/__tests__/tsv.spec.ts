@@ -25,5 +25,10 @@ describe("TSV output generator", () => {
     expect(lines[1]).toContain("alice");
     expect(lines[2]).toContain("bob");
     expect(lines[3]).toContain("total");
+    // check that new timeline columns exist
+    expect(lines[0]).toContain("avg_timeToReview");
+    expect(lines[0]).toContain("med_timeToMerge");
+    // PERCENTILE default is 75, header should include pct75_
+    expect(lines[0]).toContain("pct75_timeInDraft");
   });
 });

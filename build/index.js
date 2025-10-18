@@ -1972,21 +1972,39 @@ exports.octokit = new octokit_1.Octokit({
 /***/ }),
 
 /***/ 24146:
-/***/ ((__unused_webpack_module, exports) => {
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.createTSV = void 0;
+const formatMinutesDuration_1 = __nccwpck_require__(92411);
+const utils_1 = __nccwpck_require__(41002);
 const flattenRow = (row, headers) => headers.map((h) => (row[h] === undefined || row[h] === null ? "" : String(row[h]))).join("\t");
+// Timeline metric keys
+const timelineKeys = [
+    "timeInDraft",
+    "timeToReviewRequest",
+    "timeToReview",
+    "timeWaitingForRepeatedReview",
+    "timeToApprove",
+    "timeToMerge",
+];
 const createTSV = (data, users, dates) => {
-    // Produce a simple TSV: header row then one row per user per date with some basic metrics
-    const headers = ["date", "user", "total_merged", "total_opened", "total_comments"];
+    // Build headers: basic columns + timeline metrics for avg/median/percentile
+    const baseHeaders = ["date", "user", "total_merged", "total_opened", "total_comments"];
+    const metricHeaders = [];
+    const pct = parseInt((0, utils_1.getValueAsIs)("PERCENTILE") || "75");
+    ["avg", "med"].forEach((prefix) => {
+        timelineKeys.forEach((k) => metricHeaders.push(`${prefix}_${k}`));
+    });
+    // percentile column uses configured percentile value in header, e.g. pct75_timeToReview
+    timelineKeys.forEach((k) => metricHeaders.push(`pct${pct}_${k}`));
+    const headers = baseHeaders.concat(metricHeaders);
     const rows = [];
     rows.push(headers.join("\t"));
     for (const date of dates) {
         for (const user of users) {
-            // `data` is shaped as data[user][date] = Collection, with a special 'total' key
             const collection = data[user]?.[date] || {};
             const row = {
                 date,
@@ -1995,6 +2013,15 @@ const createTSV = (data, users, dates) => {
                 total_opened: collection.opened || 0,
                 total_comments: collection.comments || 0,
             };
+            // populate timeline metrics: average, median, percentile (raw minutes)
+            timelineKeys.forEach((k) => {
+                const avg = collection.average?.[k];
+                const med = collection.median?.[k];
+                const pctv = collection.percentile?.[k];
+                row[`avg_${k}`] = typeof avg === "number" ? (0, formatMinutesDuration_1.formatMinutesDuration)(avg) : "";
+                row[`med_${k}`] = typeof med === "number" ? (0, formatMinutesDuration_1.formatMinutesDuration)(med) : "";
+                row[`pct${pct}_${k}`] = typeof pctv === "number" ? (0, formatMinutesDuration_1.formatMinutesDuration)(pctv) : "";
+            });
             rows.push(flattenRow(row, headers));
         }
     }

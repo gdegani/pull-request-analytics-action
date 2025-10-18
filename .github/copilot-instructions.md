@@ -12,3 +12,6 @@ Use typescript for better maintainability and type safety.
 - Write clear and concise code with appropriate comments.
 - Write unit tests for new features and bug fixes with a code coverage of at least 80%.
 - Ensure compatibility with the latest LTS version of Node.js.
+
+## Other
+- If the request in the chat is not clear ask for more details.
