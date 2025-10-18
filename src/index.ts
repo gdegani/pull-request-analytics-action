@@ -84,9 +84,10 @@ async function main() {
         comments: [],
       }
     );
-    const preparedData = collectData(mergedData, teams);
-    console.log("Calculation complete. Generating markdown.");
-    await createOutput(preparedData);
+  const preparedData = collectData(mergedData, teams);
+  console.log("Calculation complete. Generating markdown.");
+  const repositories = mergedData.ownerRepo ? mergedData.ownerRepo.split(",") : [];
+  await createOutput(preparedData, repositories);
 
     try {
       const rateLimitAtEnd = await getRateLimit();

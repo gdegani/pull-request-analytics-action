@@ -15,7 +15,8 @@ export const createMarkdown = (
   users: string[],
   dates: string[],
   title: string = "Pull Request report",
-  references: { title: string; link: string }[] = []
+  references: { title: string; link: string }[] = [],
+  repositories: string[] = []
 ) => {
   const contentTypes = getMultipleValuesInput("SHOW_STATS_TYPES");
 
@@ -43,10 +44,18 @@ export const createMarkdown = (
   const issueDescription = `To learn more about the project and its configuration, please visit [Pull request analytics action](https://github.com/AlexSim93/pull-request-analytics-action).
   ${createConfigParamsCode()}`;
 
+  const reposSection =
+    repositories && repositories.length
+      ? `\n\n## Repositories analyzed\n${repositories
+          .map((r) => `- ${r}`)
+          .join("\n")}`
+      : "";
+
   return `
 ## ${title}
   ${dates.includes("total") ? issueDescription : ""}
   ${createReferences(references)}
     ${content.join("\n")}
+  ${reposSection}
   `;
 };

@@ -15,12 +15,14 @@ import { showStatsTypes } from "./common/constants";
 import { createActivityTimeMarkdown } from "./view/utils/createActivityTimeMarkdown";
 
 export const createOutput = async (
-  data: Record<string, Record<string, Collection>>
+  data: Record<string, Record<string, Collection>>,
+  repositories: string[] = []
 ) => {
   const outcomes = getMultipleValuesInput("EXECUTION_OUTCOME");
   for (let outcome of outcomes) {
     const users = getDisplayUserList(data);
     const dates = sortCollectionsByDate(data.total);
+    // repositories array is provided by the caller (index.ts)
 
     if (outcome === "new-issue" || outcome === "existing-issue") {
       const issueNumber =
@@ -29,12 +31,14 @@ export const createOutput = async (
         data,
         users,
         ["total"],
-        "Pull Request report total"
+        "Pull Request report total",
+        [],
+        repositories
       );
       if (outcome.includes("existing-issue")) {
         await clearComments(issueNumber);
       }
-      const issue = await createIssue(markdown, issueNumber);
+  const issue = await createIssue(markdown, issueNumber);
       const monthComparison = createTimelineMonthComparisonChart(
         data,
         dates,
@@ -107,7 +111,8 @@ export const createOutput = async (
               title: "Pull Request report total",
               link: `${issue.data.html_url}#`,
             },
-          ]
+          ],
+          repositories
         );
         if (commentMarkdown === "" || dates.length < 3) continue;
         const comment = await createComment(issue.data.number, commentMarkdown);
@@ -128,13 +133,13 @@ export const createOutput = async (
       );
     }
 
-    if (outcome === "markdown") {
+  if (outcome === "markdown") {
       const monthComparison = getMultipleValuesInput(
         "SHOW_STATS_TYPES"
       ).includes(showStatsTypes.timeline)
         ? createTimelineMonthComparisonChart(data, dates, users)
         : "";
-      const markdown = createMarkdown(data, users, dates).concat(
+      const markdown = createMarkdown(data, users, dates, undefined, [], repositories).concat(
         `\n${monthComparison}`
       );
       console.log("Markdown successfully generated.");

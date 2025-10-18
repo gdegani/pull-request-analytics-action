@@ -1793,14 +1793,15 @@ const utils_2 = __nccwpck_require__(92884);
 const octokit_1 = __nccwpck_require__(75455);
 const constants_1 = __nccwpck_require__(11140);
 const createActivityTimeMarkdown_1 = __nccwpck_require__(69751);
-const createOutput = async (data) => {
+const createOutput = async (data, repositories = []) => {
     const outcomes = (0, utils_1.getMultipleValuesInput)("EXECUTION_OUTCOME");
     for (let outcome of outcomes) {
         const users = (0, utils_2.getDisplayUserList)(data);
         const dates = (0, utils_2.sortCollectionsByDate)(data.total);
+        // repositories array is provided by the caller (index.ts)
         if (outcome === "new-issue" || outcome === "existing-issue") {
             const issueNumber = outcome === "existing-issue" ? (0, utils_1.getValueAsIs)("ISSUE_NUMBER") : undefined;
-            const markdown = (0, view_1.createMarkdown)(data, users, ["total"], "Pull Request report total");
+            const markdown = (0, view_1.createMarkdown)(data, users, ["total"], "Pull Request report total", [], repositories);
             if (outcome.includes("existing-issue")) {
                 await (0, requests_1.clearComments)(issueNumber);
             }
@@ -1867,7 +1868,7 @@ const createOutput = async (data) => {
                         title: "Pull Request report total",
                         link: `${issue.data.html_url}#`,
                     },
-                ]);
+                ], repositories);
                 if (commentMarkdown === "" || dates.length < 3)
                     continue;
                 const comment = await (0, requests_1.createComment)(issue.data.number, commentMarkdown);
@@ -1882,7 +1883,7 @@ const createOutput = async (data) => {
             const monthComparison = (0, utils_1.getMultipleValuesInput)("SHOW_STATS_TYPES").includes(constants_1.showStatsTypes.timeline)
                 ? (0, utils_2.createTimelineMonthComparisonChart)(data, dates, users)
                 : "";
-            const markdown = (0, view_1.createMarkdown)(data, users, dates).concat(`\n${monthComparison}`);
+            const markdown = (0, view_1.createMarkdown)(data, users, dates, undefined, [], repositories).concat(`\n${monthComparison}`);
             console.log("Markdown successfully generated.");
             core.setOutput("MARKDOWN", markdown);
         }
@@ -1980,6 +1981,8 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.createTSV = void 0;
 const formatMinutesDuration_1 = __nccwpck_require__(92411);
 const utils_1 = __nccwpck_require__(41002);
+const date_fns_1 = __nccwpck_require__(73314);
+const utils_2 = __nccwpck_require__(41002);
 const flattenRow = (row, headers) => headers.map((h) => (row[h] === undefined || row[h] === null ? "" : String(row[h]))).join("\t");
 // Timeline metric keys
 const timelineKeys = [
@@ -1992,21 +1995,108 @@ const timelineKeys = [
 ];
 const createTSV = (data, users, dates) => {
     // Build headers: basic columns + timeline metrics for avg/median/percentile
-    const baseHeaders = ["date", "user", "total_merged", "total_opened", "total_comments"];
+    // include ISO date columns (start/end) for machine-friendly date handling when available
+    const baseHeaders = [
+        "date_iso",
+        "date_iso_end",
+        "date",
+        "user",
+        "total_merged",
+        "total_opened",
+        "total_comments",
+    ];
     const metricHeaders = [];
     const pct = parseInt((0, utils_1.getValueAsIs)("PERCENTILE") || "75");
+    // For each timeline metric emit both a formatted string column and a numeric minutes column
     ["avg", "med"].forEach((prefix) => {
-        timelineKeys.forEach((k) => metricHeaders.push(`${prefix}_${k}`));
+        timelineKeys.forEach((k) => {
+            metricHeaders.push(`${prefix}_${k}`); // formatted human-friendly
+            metricHeaders.push(`${prefix}_${k}_minutes`); // numeric (minutes)
+        });
     });
     // percentile column uses configured percentile value in header, e.g. pct75_timeToReview
-    timelineKeys.forEach((k) => metricHeaders.push(`pct${pct}_${k}`));
+    timelineKeys.forEach((k) => {
+        metricHeaders.push(`pct${pct}_${k}`); // formatted
+        metricHeaders.push(`pct${pct}_${k}_minutes`); // numeric
+    });
     const headers = baseHeaders.concat(metricHeaders);
     const rows = [];
     rows.push(headers.join("\t"));
     for (const date of dates) {
         for (const user of users) {
             const collection = data[user]?.[date] || {};
+            // determine date_iso: it must contain the first day of the grouping interval
+            // supported group formats: YYYY-MM-DD (day), W##/YYYY (ISO week), M/y (month), QQQ/y (quarter), y (year)
+            let dateIso = "";
+            let dateIsoEnd = "";
+            const isoDateMatch = /^(\d{4}-\d{2}-\d{2})$/.exec(date);
+            if (isoDateMatch) {
+                // already a day
+                dateIso = isoDateMatch[1];
+                dateIsoEnd = isoDateMatch[1];
+            }
+            else {
+                const df = (0, utils_2.getDateFormat)();
+                try {
+                    if (df === "W/y") {
+                        const weekMatch = /^W(\d{2})\/(\d{4})$/.exec(date);
+                        if (weekMatch) {
+                            const week = parseInt(weekMatch[1], 10);
+                            const year = parseInt(weekMatch[2], 10);
+                            const reference = new Date(year, 0, 4);
+                            const withWeek = (0, date_fns_1.setISOWeek)(reference, week);
+                            const start = (0, date_fns_1.startOfISOWeek)(withWeek);
+                            const end = (0, date_fns_1.endOfISOWeek)(withWeek);
+                            dateIso = (0, date_fns_1.format)(start, "yyyy-MM-dd");
+                            dateIsoEnd = (0, date_fns_1.format)(end, "yyyy-MM-dd");
+                        }
+                    }
+                    else if (df === "M/y") {
+                        // month label like `1/2025` or `12/2025` — parse as month/year and return first day
+                        const monthMatch = /^(\d{1,2})\/(\d{4})$/.exec(date);
+                        if (monthMatch) {
+                            const month = parseInt(monthMatch[1], 10);
+                            const year = parseInt(monthMatch[2], 10);
+                            const parsed = (0, date_fns_1.parse)(`${year}-${String(month).padStart(2, "0")}-01`, "yyyy-MM-dd", new Date());
+                            const start = (0, date_fns_1.startOfMonth)(parsed);
+                            const end = (0, date_fns_1.endOfMonth)(parsed);
+                            dateIso = (0, date_fns_1.format)(start, "yyyy-MM-dd");
+                            dateIsoEnd = (0, date_fns_1.format)(end, "yyyy-MM-dd");
+                        }
+                    }
+                    else if (df === "QQQ/y") {
+                        // quarter label like "Q1/2025" — parse quarter and year, return first day of quarter
+                        const quarterMatch = /^Q(\d)\/(\d{4})$/.exec(date);
+                        if (quarterMatch) {
+                            const quarter = parseInt(quarterMatch[1], 10);
+                            const year = parseInt(quarterMatch[2], 10);
+                            // compute month: quarters map to months 0,3,6,9 (Jan,Apr,Jul,Oct)
+                            const month = (quarter - 1) * 3 + 1;
+                            const parsed = (0, date_fns_1.parse)(`${year}-${String(month).padStart(2, "0")}-01`, "yyyy-MM-dd", new Date());
+                            const start = (0, date_fns_1.startOfQuarter)(parsed);
+                            const end = (0, date_fns_1.endOfQuarter)(parsed);
+                            dateIso = (0, date_fns_1.format)(start, "yyyy-MM-dd");
+                            dateIsoEnd = (0, date_fns_1.format)(end, "yyyy-MM-dd");
+                        }
+                    }
+                    else if (df === "y") {
+                        const yearMatch = /^(\d{4})$/.exec(date);
+                        if (yearMatch) {
+                            const year = parseInt(yearMatch[1], 10);
+                            const start = (0, date_fns_1.startOfYear)(new Date(year, 0, 1));
+                            const end = (0, date_fns_1.endOfYear)(new Date(year, 0, 1));
+                            dateIso = (0, date_fns_1.format)(start, "yyyy-MM-dd");
+                            dateIsoEnd = (0, date_fns_1.format)(end, "yyyy-MM-dd");
+                        }
+                    }
+                }
+                catch (err) {
+                    dateIso = "";
+                }
+            }
             const row = {
+                date_iso: dateIso,
+                date_iso_end: dateIsoEnd,
                 date,
                 user,
                 total_merged: collection.merged || 0,
@@ -2019,8 +2109,11 @@ const createTSV = (data, users, dates) => {
                 const med = collection.median?.[k];
                 const pctv = collection.percentile?.[k];
                 row[`avg_${k}`] = typeof avg === "number" ? (0, formatMinutesDuration_1.formatMinutesDuration)(avg) : "";
+                row[`avg_${k}_minutes`] = typeof avg === "number" ? avg : "";
                 row[`med_${k}`] = typeof med === "number" ? (0, formatMinutesDuration_1.formatMinutesDuration)(med) : "";
+                row[`med_${k}_minutes`] = typeof med === "number" ? med : "";
                 row[`pct${pct}_${k}`] = typeof pctv === "number" ? (0, formatMinutesDuration_1.formatMinutesDuration)(pctv) : "";
+                row[`pct${pct}_${k}_minutes`] = typeof pctv === "number" ? pctv : "";
             });
             rows.push(flattenRow(row, headers));
         }
@@ -2608,7 +2701,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.createMarkdown = void 0;
 const utils_1 = __nccwpck_require__(92884);
 const utils_2 = __nccwpck_require__(41002);
-const createMarkdown = (data, users, dates, title = "Pull Request report", references = []) => {
+const createMarkdown = (data, users, dates, title = "Pull Request report", references = [], repositories = []) => {
     const contentTypes = (0, utils_2.getMultipleValuesInput)("SHOW_STATS_TYPES");
     const content = dates.map((date) => {
         if (!data.total[date]?.merged)
@@ -2631,11 +2724,17 @@ const createMarkdown = (data, users, dates, title = "Pull Request report", refer
         return "";
     const issueDescription = `To learn more about the project and its configuration, please visit [Pull request analytics action](https://github.com/AlexSim93/pull-request-analytics-action).
   ${(0, utils_1.createConfigParamsCode)()}`;
+    const reposSection = repositories && repositories.length
+        ? `\n\n## Repositories analyzed\n${repositories
+            .map((r) => `- ${r}`)
+            .join("\n")}`
+        : "";
     return `
 ## ${title}
   ${dates.includes("total") ? issueDescription : ""}
   ${(0, utils_1.createReferences)(references)}
     ${content.join("\n")}
+  ${reposSection}
   `;
 };
 exports.createMarkdown = createMarkdown;
@@ -92875,7 +92974,8 @@ async function main() {
         });
         const preparedData = (0, converters_1.collectData)(mergedData, teams);
         console.log("Calculation complete. Generating markdown.");
-        await (0, createOutput_1.createOutput)(preparedData);
+        const repositories = mergedData.ownerRepo ? mergedData.ownerRepo.split(",") : [];
+        await (0, createOutput_1.createOutput)(preparedData, repositories);
         try {
             const rateLimitAtEnd = await (0, getRateLimit_1.getRateLimit)();
             console.log("RATE LIMIT REMAINING AFTER REQUESTS: ", rateLimitAtEnd.data.rate.remaining);

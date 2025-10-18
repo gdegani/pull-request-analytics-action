@@ -299,6 +299,8 @@ Below is a table describing the possible outputs of **pull-request-analytics-act
 | `MARKDOWN`        | An output containing the report as a markdown string. To receive this output, add `markdown` to `EXECUTION_OUTCOME`.                                 |
 | `TSV`             | An output containing the report as a TSV string. To receive this output, add `tsv` to `EXECUTION_OUTCOME`.                                      |
 
+For a detailed description of the TSV columns and machine-friendly fields see [docs/tsv-format.md](./docs/tsv-format.md).
+
 ## Recommendations and Tips
 
 - Use a **Personal Access Token (classic)** to generate reports for multiple repositories or to support teams.
