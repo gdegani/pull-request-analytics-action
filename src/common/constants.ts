@@ -1,6 +1,7 @@
 export const dateFormats = {
   months: "M/y",
   quarters: "QQQ/y",
+  week: "W/y",
   years: "y",
 };
 
@@ -35,6 +36,7 @@ export const executionOutcomes = {
 export const periodSplitUnit = {
   years: "years",
   quarters: "quarters",
+  week: "week",
   months: "months",
   none: "none",
 };

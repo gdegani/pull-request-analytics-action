@@ -21,7 +21,7 @@ jobs:
           CORE_HOURS_START: "9:00"
           CORE_HOURS_END: "19:00"
           TIMEZONE: "Europe/Rome"
-          REPORT_PERIOD: months:1
+          REPORT_PERIOD: ${{ vars.TEST_REPORT_PERIOD }}
           
           SHOW_STATS_TYPES: ${{ vars.TEST_SHOW_STATS_TYPES }}
           EXECUTION_OUTCOME: ${{ vars.TEST_EXECUTION_OUTCOME }}

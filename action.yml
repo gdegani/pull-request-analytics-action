@@ -72,7 +72,7 @@ inputs:
     description: "Intervals for determining merge times distribution"
     required: false
   PERIOD_SPLIT_UNIT:
-    description: "Unit for time segmentation. Can take values: 'years', 'quarters', 'months', 'none'"
+    description: "Unit for time segmentation. Can take values: 'years', 'quarters', 'months', 'week', 'none'"
     required: false
     default: "months"
   LABELS:

@@ -159,6 +159,7 @@ exports.periodSplitUnit = exports.executionOutcomes = exports.pullRequestSize = 
 exports.dateFormats = {
     months: "M/y",
     quarters: "QQQ/y",
+    week: "W/y",
     years: "y",
 };
 exports.aggregateValueMethods = {
@@ -188,6 +189,7 @@ exports.executionOutcomes = {
 exports.periodSplitUnit = {
     years: "years",
     quarters: "quarters",
+    week: "week",
     months: "months",
     none: "none",
 };
@@ -424,9 +426,18 @@ const collectData = (data, teams) => {
         const closedDate = pullRequest.closed_at
             ? (0, date_fns_1.parseISO)(pullRequest.closed_at)
             : null;
-        const dateKey = closedDate && (0, utils_2.getDateFormat)()
-            ? (0, date_fns_1.format)(closedDate, (0, utils_2.getDateFormat)())
-            : constants_1.invalidDate;
+        const df = (0, utils_2.getDateFormat)();
+        let dateKey = constants_1.invalidDate;
+        if (closedDate && df) {
+            if (df === "W/y") {
+                const week = (0, date_fns_1.getISOWeek)(closedDate);
+                const year = (0, date_fns_1.getISOWeekYear)(closedDate);
+                dateKey = `W${String(week).padStart(2, "0")}/${year}`;
+            }
+            else {
+                dateKey = (0, date_fns_1.format)(closedDate, df);
+            }
+        }
         const userKey = pullRequest.user?.login || constants_1.invalidUserLogin;
         (0, utils_1.prepareRequestedReviews)(reviewRequests, collection, dateKey, teams);
         ["total", userKey, ...(teams[userKey] || [])].forEach((key) => {
@@ -3887,7 +3898,20 @@ const sortCollectionsByDate = (collections) => Object.keys(collections)
         return 1;
     if (b === "total")
         return -1;
-    return (0, date_fns_1.isBefore)((0, date_fns_1.parse)(a, (0, utils_1.getDateFormat)(), new Date()), (0, date_fns_1.parse)(b, (0, utils_1.getDateFormat)(), new Date()))
+    const df = (0, utils_1.getDateFormat)();
+    if (df === "W/y") {
+        // parse W##/YYYY format
+        const [aw, ay] = a.split("/");
+        const [bw, by] = b.split("/");
+        const aWeek = parseInt(aw.replace(/^W/, ""), 10) || 0;
+        const bWeek = parseInt(bw.replace(/^W/, ""), 10) || 0;
+        const aYear = parseInt(ay, 10) || 0;
+        const bYear = parseInt(by, 10) || 0;
+        if (aYear === bYear)
+            return aWeek < bWeek ? 1 : -1;
+        return aYear < bYear ? 1 : -1;
+    }
+    return (0, date_fns_1.isBefore)((0, date_fns_1.parse)(a, df, new Date()), (0, date_fns_1.parse)(b, df, new Date()))
         ? 1
         : -1;
 });

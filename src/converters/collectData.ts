@@ -1,4 +1,4 @@
-import { format, parseISO } from "date-fns";
+import { format, parseISO, getISOWeek, getISOWeekYear } from "date-fns";
 import set from "lodash/set";
 import get from "lodash/get";
 
@@ -58,10 +58,17 @@ export const collectData = (
       ? parseISO(pullRequest.closed_at)
       : null;
 
-    const dateKey =
-      closedDate && getDateFormat()
-        ? format(closedDate, getDateFormat())
-        : invalidDate;
+    const df = getDateFormat();
+    let dateKey = invalidDate;
+    if (closedDate && df) {
+      if (df === "W/y") {
+        const week = getISOWeek(closedDate);
+        const year = getISOWeekYear(closedDate);
+        dateKey = `W${String(week).padStart(2, "0")}/${year}`;
+      } else {
+        dateKey = format(closedDate, df);
+      }
+    }
 
     const userKey = pullRequest.user?.login || invalidUserLogin;
     prepareRequestedReviews(reviewRequests, collection, dateKey, teams);
