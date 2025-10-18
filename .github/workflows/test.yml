@@ -43,6 +43,11 @@ jobs:
           # Write TSV output safely (preserve newlines)
           printf '%s\n' "${{ steps.analytics.outputs.tsv }}" > report/report.tsv
 
+          # Convert TSV to XLSX (UTF-8 aware) using Python + openpyxl
+          python -m pip install --upgrade pip >/dev/null
+          python -m pip install openpyxl >/dev/null
+          python3 .github/scripts/convert_tsv_to_xlsx.py
+
           # Append TSV to the step summary inside a fenced code block for readability
           echo '' >> $GITHUB_STEP_SUMMARY
           echo '## Report (TSV)' >> $GITHUB_STEP_SUMMARY
@@ -56,4 +61,5 @@ jobs:
           name: pr-analytics-reports
           path: |
             report/report.tsv
+            report/report.xlsx
             report/report.md
