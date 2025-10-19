@@ -15,3 +15,4 @@ Use typescript for better maintainability and type safety.
 
 ## Other
 - If the request in the chat is not clear ask for more details.
+- Keep documentation updated with any code changes.
