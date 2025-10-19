@@ -2004,6 +2004,19 @@ const createTSV = (data, users, dates) => {
         "total_merged",
         "total_opened",
         "total_comments",
+        // Workload / contribution columns
+        "total_reverted",
+        "prs_wo_review",
+        "prs_wo_approval",
+        // separate numeric additions and deletions for machine consumption
+        "additions",
+        "deletions",
+        // individual PR size buckets
+        "pr_size_xs",
+        "pr_size_s",
+        "pr_size_m",
+        "pr_size_l",
+        "pr_size_xl",
     ];
     const metricHeaders = [];
     const pct = parseInt((0, utils_1.getValueAsIs)("PERCENTILE") || "75");
@@ -2102,6 +2115,19 @@ const createTSV = (data, users, dates) => {
                 total_merged: collection.merged || 0,
                 total_opened: collection.opened || 0,
                 total_comments: collection.comments || 0,
+                // workload fields
+                total_reverted: collection.reverted || 0,
+                prs_wo_review: collection.unreviewed || 0,
+                prs_wo_approval: collection.unapproved || 0,
+                // numeric additions/deletions
+                additions: collection.additions || 0,
+                deletions: collection.deletions || 0,
+                // individual size buckets
+                pr_size_xs: (collection.prSizes?.filter((ps) => ps === "xs").length) || 0,
+                pr_size_s: (collection.prSizes?.filter((ps) => ps === "s").length) || 0,
+                pr_size_m: (collection.prSizes?.filter((ps) => ps === "m").length) || 0,
+                pr_size_l: (collection.prSizes?.filter((ps) => ps === "l").length) || 0,
+                pr_size_xl: (collection.prSizes?.filter((ps) => ps === "xl").length) || 0,
             };
             // populate timeline metrics: average, median, percentile (raw minutes)
             timelineKeys.forEach((k) => {
