@@ -55,6 +55,23 @@ Shows the total volume of code merged, reviews conducted, and comments in PRs. H
 
 ### Discussion Intensity (Author's Perspective)
 
+### How PR size is calculated
+
+The action computes a numeric PR size (called `sizePoints`) using the formula:
+
+  sizePoints = additions + deletions * 0.2
+
+Deletions are weighted by a coefficient (0.2) so they contribute less than additions to the overall size. After computing `sizePoints`, the PR is placed into one of five buckets used across the reports and TSV outputs:
+
+- `xs` : sizePoints <= 50
+- `s`  : 51 <= sizePoints <= 200
+- `m`  : 201 <= sizePoints <= 400
+- `l`  : 401 <= sizePoints <= 700
+- `xl` : sizePoints > 700
+
+These thresholds and the deletion weight are defined in the code and can be adjusted if you want different behavior (see `src/converters/utils/calculations/calcPRsize.ts` and `getPullRequestSize.ts`).
+
+
 Measures how discussion-heavy PRs are from the author's perspective, based on open discussions, review statuses, and the number of comments. Additionally, you can track discussion topics and user agreement by adding discussion topics in `[[]]` and using thumbs up/down ( :+1: / :-1: ) reactions on the opening comment. Use the `pr-quality` value in the `SHOW_STATS_TYPES` parameter.
 
 |   user    | Total merged PRs | Changes requested received | Agreed / Disagreed / Total discussions received | Comments received |
