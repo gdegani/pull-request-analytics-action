@@ -10,7 +10,7 @@ Use typescript for better maintainability and type safety.
 ## Guidelines for contributing
 - Follow best practices for Node.js and TypeScript development.
 - Write clear and concise code with appropriate comments.
-- Write unit tests for new features and bug fixes with a code coverage of at least 80%.
+- Write unit tests for new features and bug fixes with a code coverage of at least 80% for each source file.
 - Ensure compatibility with the latest LTS version of Node.js.
 
 ## Other
