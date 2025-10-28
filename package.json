@@ -8,7 +8,7 @@
     "build": "tsc && ncc build ./dist/index.js -o build",
     "tsc": "tsc",
     "lint": "eslint ./src/**/*.ts",
-    "test": "TZ=utc WEEKENDS=0,6 jest",
+  "test": "TZ=utc WEEKENDS=0,6 jest --coverage --coverageReporters=text --coverageReporters=lcov --coverageDirectory=coverage",
     "test:watch": "TZ=utc WEEKENDS=0,6 jest --watch",
     "prepare": "husky install"
   },
