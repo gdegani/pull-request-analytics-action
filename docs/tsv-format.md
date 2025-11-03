@@ -22,14 +22,15 @@ This document describes the columns emitted in the `TSV` output of the action.
 | `pr_size_l` | integer | Number of PRs sized `l` in the interval for the user |
 | `pr_size_xl` | integer | Number of PRs sized `xl` in the interval for the user |
 
-The following timeline metrics are emitted twice: a human-readable formatted duration, and a numeric minutes column for machine analysis. For each metric `X` the columns are:
+
+The following timeline metrics are emitted twice: a human-readable formatted duration, and a numeric hours column for machine analysis. For each metric `X` the columns are:
 
 - `avg_X` (string) — average formatted value (e.g., `2 hours 30 minutes`)
-- `avg_X_minutes` (integer) — average value in minutes
+- `avg_X_hours` (number) — average value in hours (floating point)
 - `med_X` (string) — median formatted value
-- `med_X_minutes` (integer) — median value in minutes
+- `med_X_hours` (number) — median value in hours (floating point)
 - `pct{PERCENTILE}_X` (string) — percentile formatted value (PERCENTILE is the configured percentile, e.g., `pct75_timeToReview`)
-- `pct{PERCENTILE}_X_minutes` (integer) — percentile value in minutes
+- `pct{PERCENTILE}_X_hours` (number) — percentile value in hours (floating point)
 
 Timeline metric keys (replace `X` above)
 
@@ -71,14 +72,15 @@ This document describes the columns emitted in the `TSV` output of the action.
 | `pr_size_l` | integer | Number of PRs sized `l` in the interval for the user |
 | `pr_size_xl` | integer | Number of PRs sized `xl` in the interval for the user |
 
-The following timeline metrics are emitted twice: a human-readable formatted duration, and a numeric minutes column for machine analysis. For each metric `X` the columns are:
+
+The following timeline metrics are emitted twice: a human-readable formatted duration, and a numeric hours column for machine analysis. For each metric `X` the columns are:
 
 - `avg_X` (string) — average formatted value (e.g., `2 hours 30 minutes`)
-- `avg_X_minutes` (integer) — average value in minutes
+- `avg_X_hours` (number) — average value in hours (floating point)
 - `med_X` (string) — median formatted value
-- `med_X_minutes` (integer) — median value in minutes
+- `med_X_hours` (number) — median value in hours (floating point)
 - `pct{PERCENTILE}_X` (string) — percentile formatted value (PERCENTILE is the configured percentile, e.g., `pct75_timeToReview`)
-- `pct{PERCENTILE}_X_minutes` (integer) — percentile value in minutes
+- `pct{PERCENTILE}_X_hours` (number) — percentile value in hours (floating point)
 
 Timeline metric keys (replace `X` above)
 

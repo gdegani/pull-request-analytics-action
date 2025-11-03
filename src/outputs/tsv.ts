@@ -65,14 +65,12 @@ export const createTSV = (
   ["avg", "med"].forEach((prefix) => {
     timelineKeys.forEach((k) => {
       metricHeaders.push(`${prefix}_${k}`); // formatted human-friendly
-      metricHeaders.push(`${prefix}_${k}_minutes`); // numeric (minutes)
       metricHeaders.push(`${prefix}_${k}_hours`); // numeric (hours)
     });
   });
   // percentile column uses configured percentile value in header, e.g. pct75_timeToReview
   timelineKeys.forEach((k) => {
     metricHeaders.push(`pct${pct}_${k}`); // formatted
-    metricHeaders.push(`pct${pct}_${k}_minutes`); // numeric
     metricHeaders.push(`pct${pct}_${k}_hours`); // numeric (hours)
   });
 
@@ -177,16 +175,13 @@ export const createTSV = (
         const med = (collection.median as any)?.[k];
         const pctv = (collection.percentile as any)?.[k];
         row[`avg_${k}`] = typeof avg === "number" ? formatMinutesDuration(avg) : "";
-        row[`avg_${k}_minutes`] = typeof avg === "number" ? avg : "";
-        row[`avg_${k}_hours`] = typeof avg === "number" ? avg / 60 : "";
+  row[`avg_${k}_hours`] = typeof avg === "number" ? avg / 60 : "";
 
         row[`med_${k}`] = typeof med === "number" ? formatMinutesDuration(med) : "";
-        row[`med_${k}_minutes`] = typeof med === "number" ? med : "";
-        row[`med_${k}_hours`] = typeof med === "number" ? med / 60 : "";
+  row[`med_${k}_hours`] = typeof med === "number" ? med / 60 : "";
 
         row[`pct${pct}_${k}`] = typeof pctv === "number" ? formatMinutesDuration(pctv) : "";
-        row[`pct${pct}_${k}_minutes`] = typeof pctv === "number" ? pctv : "";
-        row[`pct${pct}_${k}_hours`] = typeof pctv === "number" ? pctv / 60 : "";
+  row[`pct${pct}_${k}_hours`] = typeof pctv === "number" ? pctv / 60 : "";
       });
 
       rows.push(flattenRow(row, headers));

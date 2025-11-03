@@ -28,11 +28,11 @@ describe("TSV output generator", () => {
   // check that new timeline columns exist (formatted)
   expect(lines[0]).toContain("avg_timeToReview");
   expect(lines[0]).toContain("med_timeToMerge");
-  // numeric minute columns
-  expect(lines[0]).toContain("avg_timeToReview_minutes");
-  expect(lines[0]).toContain("med_timeToMerge_minutes");
-  // PERCENTILE default is 75, header should include pct75_ and the minutes variant
+  // numeric hours columns
+  expect(lines[0]).toContain("avg_timeToReview_hours");
+  expect(lines[0]).toContain("med_timeToMerge_hours");
+  // PERCENTILE default is 75, header should include pct75_ and the hours variant
   expect(lines[0]).toContain("pct75_timeInDraft");
-  expect(lines[0]).toContain("pct75_timeInDraft_minutes");
+  expect(lines[0]).toContain("pct75_timeInDraft_hours");
   });
 });
