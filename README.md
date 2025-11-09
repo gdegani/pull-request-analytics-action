@@ -59,9 +59,9 @@ Shows the total volume of code merged, reviews conducted, and comments in PRs. H
 
 The action computes a numeric PR size (called `sizePoints`) using the formula:
 
-  sizePoints = additions + deletions * 0.2
+  sizePoints = additions + deletions * DELETION_WEIGHT
 
-Deletions are weighted by a coefficient (0.2) so they contribute less than additions to the overall size. After computing `sizePoints`, the PR is placed into one of five buckets used across the reports and TSV outputs:
+Where `DELETION_WEIGHT` is a configurable parameter (default value is `0.2`). Deletions are weighted by this coefficient so they contribute less than additions to the overall size. After computing `sizePoints`, the PR is placed into one of five buckets used across the reports and TSV outputs:
 
 - `xs` : sizePoints <= 50
 - `s`  : 51 <= sizePoints <= 200
@@ -69,7 +69,7 @@ Deletions are weighted by a coefficient (0.2) so they contribute less than addit
 - `l`  : 401 <= sizePoints <= 700
 - `xl` : sizePoints > 700
 
-These thresholds and the deletion weight are defined in the code and can be adjusted if you want different behavior (see `src/converters/utils/calculations/calcPRsize.ts` and `getPullRequestSize.ts`).
+You can customize the deletion weight by setting the `DELETION_WEIGHT` input parameter (see below). The thresholds for PR size buckets are defined in the code and can be adjusted if you want different behavior (see `src/converters/utils/calculations/getPullRequestSize.ts`).
 
 
 Measures how discussion-heavy PRs are from the author's perspective, based on open discussions, review statuses, and the number of comments. Additionally, you can track discussion topics and user agreement by adding discussion topics in `[[]]` and using thumbs up/down ( :+1: / :-1: ) reactions on the opening comment. Use the `pr-quality` value in the `SHOW_STATS_TYPES` parameter.
@@ -286,6 +286,7 @@ Below is a table outlining the various configuration parameters available for **
 | `HOLIDAYS`                  | Dates to be excluded from the calculations of time-related metrics. Saturday and Sunday are already excluded by default. Dates should be entered in the format **d/MM/yyyy**, separated by commas. Example: `01/01/2024, 08/03/2024`                                                                                                                                                                  | -                                                                       |
 | `WEEKENDS`                  | Specifies the days of the week considered as weekends. Values are represented as numbers, where 0 corresponds to Sunday                                                                                                                                                                                                                                                                               | `0,6`                                                                   |
 | `TIMEZONE`                  | Timezone that will be used in action. Examples: `Europe/Berlin` or `America/New_York`. See the full list of time zones [here](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones)                                                                                                                                                                                                           | `UTC`                                                                   |
+| `DELETION_WEIGHT`           | Weight coefficient for deletions in PR size calculation. The formula is: `sizePoints = additions + deletions * DELETION_WEIGHT`. Lower values make deletions contribute less to the overall PR size.                                                                                                                                                                                                  | `0.2`                                                                   |
 | `PERCENTILE`                | Percentile value for timeline. This parameter is mandatory if `percentile` is specified in the `SHOW_STATS_TYPES` input.                                                                                                                                                                                                                                                                              | `75`                                                                    |
 | `REQUIRED_APPROVALS`        | Amount of approvals required for PR to be approved. This parameter is **required**                                                                                                                                                                                                                                                                                                                    | `1`                                                                     |
 | `ISSUE_TITLE`               | Title for the created/updated issue with report                                                                                                                                                                                                                                                                                                                                                       | `Pull requests report(d/MM/yyyy HH:mm)`                                 |

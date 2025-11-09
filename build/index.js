@@ -689,9 +689,10 @@ exports.calcNonWorkingHours = calcNonWorkingHours;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.calcPRsize = void 0;
-const constants_1 = __nccwpck_require__(51666);
+const utils_1 = __nccwpck_require__(41002);
 const calcPRsize = (additions, deletions) => {
-    return (additions || 0) + (deletions || 0) * constants_1.deletionCoefficient;
+    const deletionWeight = parseFloat((0, utils_1.getValueAsIs)("DELETION_WEIGHT") || "0.2");
+    return (additions || 0) + (deletions || 0) * deletionWeight;
 };
 exports.calcPRsize = calcPRsize;
 
@@ -3424,6 +3425,7 @@ exports.createResponseTable = createResponseTable;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.createReviewTable = void 0;
+const utils_1 = __nccwpck_require__(41002);
 const constants_1 = __nccwpck_require__(11474);
 const common_1 = __nccwpck_require__(64682);
 const createReviewTable = (data, users, date) => {
@@ -3448,7 +3450,7 @@ const createReviewTable = (data, users, date) => {
     });
     return (0, common_1.createTable)({
         title: `Code review engagement ${date}`,
-        description: "**PR Size** - determined using the formula: `additions + deletions * 0.2`. Based on this calculation: 0-50: xs, 51-200: s, 201-400: m, 401-700: l, 701+: xl\n**Changes requested / Comments / Approvals** - number of reviews conducted by user. For a single pull request, only one review of each status will be counted for a user.\n**Agreed** - discussions with at least 1 reaction :+1:.\n**Disagreed** - discussions with at least 1 reaction :-1:.",
+        description: `**PR Size** - determined using the formula: \`additions + deletions * ${(0, utils_1.getValueAsIs)("DELETION_WEIGHT") || "0.2"}\`. Based on this calculation: 0-50: xs, 51-200: s, 201-400: m, 401-700: l, 701+: xl\n**Changes requested / Comments / Approvals** - number of reviews conducted by user. For a single pull request, only one review of each status will be counted for a user.\n**Agreed** - discussions with at least 1 reaction :+1:.\n**Disagreed** - discussions with at least 1 reaction :-1:.`,
         table: {
             headers: [
                 "user",
@@ -3946,7 +3948,7 @@ const createTotalTable = (data, users, date) => {
     return [
         (0, common_1.createTable)({
             title: `Contribution stats ${date}`,
-            description: "**Reviews conducted** - number of reviews conducted. 1 PR may have only single review.\n**PR Size** - determined using the formula: `additions + deletions * 0.2`. Based on this calculation: 0-50: xs, 51-200: s, 201-400: m, 401-700: l, 701+: xl\n**Total reverted PRs** - The number of reverted PRs based on the branch name pattern `/^revert-d+/`. This pattern is used for reverts made via GitHub.",
+            description: `**Reviews conducted** - number of reviews conducted. 1 PR may have only single review.\n**PR Size** - determined using the formula: \`additions + deletions * ${(0, utils_1.getValueAsIs)("DELETION_WEIGHT") || "0.2"}\`. Based on this calculation: 0-50: xs, 51-200: s, 201-400: m, 401-700: l, 701+: xl\n**Total reverted PRs** - The number of reverted PRs based on the branch name pattern \`/^revert-d+/\`. This pattern is used for reverts made via GitHub.`,
             table: {
                 headers: [
                     "user",

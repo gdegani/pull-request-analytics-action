@@ -22,6 +22,7 @@ jobs:
           CORE_HOURS_START: "9:00"
           CORE_HOURS_END: "19:00"
           TIMEZONE: "Europe/Rome"
+          DELETION_WEIGHT: "0.2"
           REPORT_PERIOD: ${{ vars.TEST_REPORT_PERIOD }}
           
           SHOW_STATS_TYPES: ${{ vars.TEST_SHOW_STATS_TYPES }}
