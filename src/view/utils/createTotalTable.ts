@@ -54,7 +54,7 @@ export const createTotalTable = (
     createTable({
       title: `Contribution stats ${date}`,
       description:
-        `**Reviews conducted** - number of reviews conducted. 1 PR may have only single review.\n**PR Size** - determined using the formula: \`additions + deletions * ${getValueAsIs("DELETION_WEIGHT") || "0.2"}\`. Based on this calculation: 0-50: xs, 51-200: s, 201-400: m, 401-700: l, 701+: xl\n**Total reverted PRs** - The number of reverted PRs based on the branch name pattern \`/^revert-d+/\`. This pattern is used for reverts made via GitHub.`,
+        `**Reviews conducted** - number of reviews conducted. 1 PR may have only single review.\n**PR Size** - determined using the formula: \`additions + deletions * ${getValueAsIs("DELETION_WEIGHT") || "0.2"}\`. Based on this calculation: 0-${getValueAsIs("SIZE_XS_THRESHOLD") || "50"}: xs, ${parseInt(getValueAsIs("SIZE_XS_THRESHOLD") || "50") + 1}-${getValueAsIs("SIZE_S_THRESHOLD") || "200"}: s, ${parseInt(getValueAsIs("SIZE_S_THRESHOLD") || "200") + 1}-${getValueAsIs("SIZE_M_THRESHOLD") || "400"}: m, ${parseInt(getValueAsIs("SIZE_M_THRESHOLD") || "400") + 1}-${getValueAsIs("SIZE_L_THRESHOLD") || "700"}: l, ${parseInt(getValueAsIs("SIZE_L_THRESHOLD") || "700") + 1}+: xl\n**Total reverted PRs** - The number of reverted PRs based on the branch name pattern \`/^revert-d+/\`. This pattern is used for reverts made via GitHub.`,
       table: {
         headers: [
           "user",

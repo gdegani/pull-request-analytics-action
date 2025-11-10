@@ -881,18 +881,23 @@ exports.getApproveTime = getApproveTime;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getPullRequestSize = void 0;
 const calcPRsize_1 = __nccwpck_require__(8722);
+const utils_1 = __nccwpck_require__(41002);
 const getPullRequestSize = (additions, deletions) => {
     const size = (0, calcPRsize_1.calcPRsize)(additions, deletions);
-    if (size <= 50) {
+    const xsThreshold = parseFloat((0, utils_1.getValueAsIs)("SIZE_XS_THRESHOLD") || "50");
+    const sThreshold = parseFloat((0, utils_1.getValueAsIs)("SIZE_S_THRESHOLD") || "200");
+    const mThreshold = parseFloat((0, utils_1.getValueAsIs)("SIZE_M_THRESHOLD") || "400");
+    const lThreshold = parseFloat((0, utils_1.getValueAsIs)("SIZE_L_THRESHOLD") || "700");
+    if (size <= xsThreshold) {
         return "xs";
     }
-    if (size <= 200) {
+    if (size <= sThreshold) {
         return "s";
     }
-    if (size <= 400) {
+    if (size <= mThreshold) {
         return "m";
     }
-    if (size <= 700) {
+    if (size <= lThreshold) {
         return "l";
     }
     return "xl";
@@ -3450,7 +3455,7 @@ const createReviewTable = (data, users, date) => {
     });
     return (0, common_1.createTable)({
         title: `Code review engagement ${date}`,
-        description: `**PR Size** - determined using the formula: \`additions + deletions * ${(0, utils_1.getValueAsIs)("DELETION_WEIGHT") || "0.2"}\`. Based on this calculation: 0-50: xs, 51-200: s, 201-400: m, 401-700: l, 701+: xl\n**Changes requested / Comments / Approvals** - number of reviews conducted by user. For a single pull request, only one review of each status will be counted for a user.\n**Agreed** - discussions with at least 1 reaction :+1:.\n**Disagreed** - discussions with at least 1 reaction :-1:.`,
+        description: `**PR Size** - determined using the formula: \`additions + deletions * ${(0, utils_1.getValueAsIs)("DELETION_WEIGHT") || "0.2"}\`. Based on this calculation: 0-${(0, utils_1.getValueAsIs)("SIZE_XS_THRESHOLD") || "50"}: xs, ${parseInt((0, utils_1.getValueAsIs)("SIZE_XS_THRESHOLD") || "50") + 1}-${(0, utils_1.getValueAsIs)("SIZE_S_THRESHOLD") || "200"}: s, ${parseInt((0, utils_1.getValueAsIs)("SIZE_S_THRESHOLD") || "200") + 1}-${(0, utils_1.getValueAsIs)("SIZE_M_THRESHOLD") || "400"}: m, ${parseInt((0, utils_1.getValueAsIs)("SIZE_M_THRESHOLD") || "400") + 1}-${(0, utils_1.getValueAsIs)("SIZE_L_THRESHOLD") || "700"}: l, ${parseInt((0, utils_1.getValueAsIs)("SIZE_L_THRESHOLD") || "700") + 1}+: xl\n**Changes requested / Comments / Approvals** - number of reviews conducted by user. For a single pull request, only one review of each status will be counted for a user.\n**Agreed** - discussions with at least 1 reaction :+1:.\n**Disagreed** - discussions with at least 1 reaction :-1:.`,
         table: {
             headers: [
                 "user",
@@ -3948,7 +3953,7 @@ const createTotalTable = (data, users, date) => {
     return [
         (0, common_1.createTable)({
             title: `Contribution stats ${date}`,
-            description: `**Reviews conducted** - number of reviews conducted. 1 PR may have only single review.\n**PR Size** - determined using the formula: \`additions + deletions * ${(0, utils_1.getValueAsIs)("DELETION_WEIGHT") || "0.2"}\`. Based on this calculation: 0-50: xs, 51-200: s, 201-400: m, 401-700: l, 701+: xl\n**Total reverted PRs** - The number of reverted PRs based on the branch name pattern \`/^revert-d+/\`. This pattern is used for reverts made via GitHub.`,
+            description: `**Reviews conducted** - number of reviews conducted. 1 PR may have only single review.\n**PR Size** - determined using the formula: \`additions + deletions * ${(0, utils_1.getValueAsIs)("DELETION_WEIGHT") || "0.2"}\`. Based on this calculation: 0-${(0, utils_1.getValueAsIs)("SIZE_XS_THRESHOLD") || "50"}: xs, ${parseInt((0, utils_1.getValueAsIs)("SIZE_XS_THRESHOLD") || "50") + 1}-${(0, utils_1.getValueAsIs)("SIZE_S_THRESHOLD") || "200"}: s, ${parseInt((0, utils_1.getValueAsIs)("SIZE_S_THRESHOLD") || "200") + 1}-${(0, utils_1.getValueAsIs)("SIZE_M_THRESHOLD") || "400"}: m, ${parseInt((0, utils_1.getValueAsIs)("SIZE_M_THRESHOLD") || "400") + 1}-${(0, utils_1.getValueAsIs)("SIZE_L_THRESHOLD") || "700"}: l, ${parseInt((0, utils_1.getValueAsIs)("SIZE_L_THRESHOLD") || "700") + 1}+: xl\n**Total reverted PRs** - The number of reverted PRs based on the branch name pattern \`/^revert-d+/\`. This pattern is used for reverts made via GitHub.`,
             table: {
                 headers: [
                     "user",

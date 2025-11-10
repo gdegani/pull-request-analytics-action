@@ -59,7 +59,7 @@ export const createReviewTable = (
   return createTable({
     title: `Code review engagement ${date}`,
     description:
-      `**PR Size** - determined using the formula: \`additions + deletions * ${getValueAsIs("DELETION_WEIGHT") || "0.2"}\`. Based on this calculation: 0-50: xs, 51-200: s, 201-400: m, 401-700: l, 701+: xl\n**Changes requested / Comments / Approvals** - number of reviews conducted by user. For a single pull request, only one review of each status will be counted for a user.\n**Agreed** - discussions with at least 1 reaction :+1:.\n**Disagreed** - discussions with at least 1 reaction :-1:.`,
+      `**PR Size** - determined using the formula: \`additions + deletions * ${getValueAsIs("DELETION_WEIGHT") || "0.2"}\`. Based on this calculation: 0-${getValueAsIs("SIZE_XS_THRESHOLD") || "50"}: xs, ${parseInt(getValueAsIs("SIZE_XS_THRESHOLD") || "50") + 1}-${getValueAsIs("SIZE_S_THRESHOLD") || "200"}: s, ${parseInt(getValueAsIs("SIZE_S_THRESHOLD") || "200") + 1}-${getValueAsIs("SIZE_M_THRESHOLD") || "400"}: m, ${parseInt(getValueAsIs("SIZE_M_THRESHOLD") || "400") + 1}-${getValueAsIs("SIZE_L_THRESHOLD") || "700"}: l, ${parseInt(getValueAsIs("SIZE_L_THRESHOLD") || "700") + 1}+: xl\n**Changes requested / Comments / Approvals** - number of reviews conducted by user. For a single pull request, only one review of each status will be counted for a user.\n**Agreed** - discussions with at least 1 reaction :+1:.\n**Disagreed** - discussions with at least 1 reaction :-1:.`,
     table: {
       headers: [
         "user",

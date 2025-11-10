@@ -113,6 +113,22 @@ inputs:
     description: "Weight coefficient for deletions in PR size calculation (sizePoints = additions + deletions * DELETION_WEIGHT)"
     required: false
     default: "0.2"
+  SIZE_XS_THRESHOLD:
+    description: "Maximum sizePoints value for 'xs' PR size classification"
+    required: false
+    default: "50"
+  SIZE_S_THRESHOLD:
+    description: "Maximum sizePoints value for 's' PR size classification"
+    required: false
+    default: "200"
+  SIZE_M_THRESHOLD:
+    description: "Maximum sizePoints value for 'm' PR size classification"
+    required: false
+    default: "400"
+  SIZE_L_THRESHOLD:
+    description: "Maximum sizePoints value for 'l' PR size classification. Values above this are 'xl'"
+    required: false
+    default: "700"
   EXECUTION_OUTCOME:
     description: "Outcome format separated by comma. Can take values: 'markdown', 'tsv', 'new-issue', 'collection', 'existing-issue'"
     required: false

@@ -1,4 +1,5 @@
 import { calcPRsize } from "./calcPRsize";
+import { getValueAsIs } from "../../../common/utils";
 
 export type PullRequestSize = "xs" | "s" | "m" | "l" | "xl";
 
@@ -7,16 +8,21 @@ export const getPullRequestSize = (
   deletions: number | undefined
 ): PullRequestSize => {
   const size = calcPRsize(additions, deletions);
-  if (size <= 50) {
+  const xsThreshold = parseFloat(getValueAsIs("SIZE_XS_THRESHOLD") || "50");
+  const sThreshold = parseFloat(getValueAsIs("SIZE_S_THRESHOLD") || "200");
+  const mThreshold = parseFloat(getValueAsIs("SIZE_M_THRESHOLD") || "400");
+  const lThreshold = parseFloat(getValueAsIs("SIZE_L_THRESHOLD") || "700");
+  
+  if (size <= xsThreshold) {
     return "xs";
   }
-  if (size <= 200) {
+  if (size <= sThreshold) {
     return "s";
   }
-  if (size <= 400) {
+  if (size <= mThreshold) {
     return "m";
   }
-  if (size <= 700) {
+  if (size <= lThreshold) {
     return "l";
   }
   return "xl";
