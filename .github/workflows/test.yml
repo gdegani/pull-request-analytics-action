@@ -22,11 +22,11 @@ jobs:
           CORE_HOURS_START: "9:00"
           CORE_HOURS_END: "19:00"
           TIMEZONE: "Europe/Rome"
-          DELETION_WEIGHT: "0.2"
-          SIZE_XS_THRESHOLD: "50"
-          SIZE_S_THRESHOLD: "200"
-          SIZE_M_THRESHOLD: "400"
-          SIZE_L_THRESHOLD: "700"
+          DELETION_WEIGHT: ${{ vars.TEST_DELETION_WEIGHT }}
+          SIZE_XS_THRESHOLD: ${{ vars.TEST_SIZE_XS_THRESHOLD }}
+          SIZE_S_THRESHOLD: ${{ vars.TEST_SIZE_S_THRESHOLD }}
+          SIZE_M_THRESHOLD: ${{ vars.TEST_SIZE_M_THRESHOLD }}
+          SIZE_L_THRESHOLD: ${{ vars.TEST_SIZE_L_THRESHOLD }}
           REPORT_PERIOD: ${{ vars.TEST_REPORT_PERIOD }}
           
           SHOW_STATS_TYPES: ${{ vars.TEST_SHOW_STATS_TYPES }}
