@@ -39,9 +39,9 @@ The following columns are included based on the `AGGREGATE_VALUE_METHODS` input 
 
 | Column name | Type | Included when | Description |
 |-------------|------|---------------|-------------|
-| `avg_pull_request_size` | number (2 decimals) | `average` in AGGREGATE_VALUE_METHODS | Average sizePoints across all PRs for the user in the interval |
-| `med_pull_request_size` | number (2 decimals) | `median` in AGGREGATE_VALUE_METHODS | Median sizePoints across all PRs for the user in the interval |
-| `pct{N}_pull_request_size` | number (2 decimals) | `percentile` in AGGREGATE_VALUE_METHODS | Nth percentile of sizePoints (e.g., `pct75_pull_request_size` when PERCENTILE=75) |
+| `avg_pull_request_size` | integer | `average` in AGGREGATE_VALUE_METHODS | Average sizePoints across all PRs for the user in the interval (rounded to nearest integer) |
+| `med_pull_request_size` | integer | `median` in AGGREGATE_VALUE_METHODS | Median sizePoints across all PRs for the user in the interval (rounded to nearest integer) |
+| `pct{N}_pull_request_size` | integer | `percentile` in AGGREGATE_VALUE_METHODS | Nth percentile of sizePoints (e.g., `pct75_pull_request_size` when PERCENTILE=75, rounded to nearest integer) |
 
 ## Timeline Metric Columns
 

@@ -2170,7 +2170,7 @@ const createTSV = (data, users, dates) => {
                 });
                 // Add average PR size
                 const avgPrSize = collection.average?.prSizePoints;
-                row[`avg_pull_request_size`] = typeof avgPrSize === "number" ? avgPrSize.toFixed(2) : "";
+                row[`avg_pull_request_size`] = typeof avgPrSize === "number" ? Math.round(avgPrSize) : "";
             }
             if (hasMedian) {
                 timelineKeys.forEach((k) => {
@@ -2180,7 +2180,7 @@ const createTSV = (data, users, dates) => {
                 });
                 // Add median PR size
                 const medPrSize = collection.median?.prSizePoints;
-                row[`med_pull_request_size`] = typeof medPrSize === "number" ? medPrSize.toFixed(2) : "";
+                row[`med_pull_request_size`] = typeof medPrSize === "number" ? Math.round(medPrSize) : "";
             }
             if (hasPercentile) {
                 timelineKeys.forEach((k) => {
@@ -2190,7 +2190,7 @@ const createTSV = (data, users, dates) => {
                 });
                 // Add percentile PR size
                 const pctPrSize = collection.percentile?.prSizePoints;
-                row[`pct${pct}_pull_request_size`] = typeof pctPrSize === "number" ? pctPrSize.toFixed(2) : "";
+                row[`pct${pct}_pull_request_size`] = typeof pctPrSize === "number" ? Math.round(pctPrSize) : "";
             }
             rows.push(flattenRow(row, headers));
         }
