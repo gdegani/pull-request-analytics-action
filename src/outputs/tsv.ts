@@ -1,6 +1,6 @@
 import { Collection } from "../converters";
 import { formatMinutesDuration } from "../view/utils/formatMinutesDuration";
-import { getValueAsIs } from "../common/utils";
+import { getValueAsIs, getMultipleValuesInput } from "../common/utils";
 import {
   format,
   setISOWeek,
@@ -34,6 +34,14 @@ export const createTSV = (
   users: string[],
   dates: string[]
 ) => {
+  // Check if aggregate methods include percentile, average, or median
+  const aggregateMethodsInput = getMultipleValuesInput("AGGREGATE_VALUE_METHODS");
+  // For backward compatibility: if empty or not set, include all methods
+  const aggregateMethods = aggregateMethodsInput.length > 0 ? aggregateMethodsInput : ["percentile", "average", "median"];
+  const hasPercentile = aggregateMethods.includes("percentile");
+  const hasAverage = aggregateMethods.includes("average");
+  const hasMedian = aggregateMethods.includes("median");
+
   // Build headers: basic columns + timeline metrics for avg/median/percentile
   // include ISO date columns (start/end) for machine-friendly date handling when available
   const baseHeaders = [
@@ -62,17 +70,31 @@ export const createTSV = (
   const metricHeaders: string[] = [];
   const pct = parseInt(getValueAsIs("PERCENTILE") || "75");
   // For each timeline metric emit both a formatted string column and a numeric minutes column
-  ["avg", "med"].forEach((prefix) => {
+  if (hasAverage) {
     timelineKeys.forEach((k) => {
-      metricHeaders.push(`${prefix}_${k}`); // formatted human-friendly
-      metricHeaders.push(`${prefix}_${k}_hours`); // numeric (hours)
+      metricHeaders.push(`avg_${k}`); // formatted human-friendly
+      metricHeaders.push(`avg_${k}_hours`); // numeric (hours)
     });
-  });
+    // Add average PR size
+    metricHeaders.push(`avg_pull_request_size`);
+  }
+  if (hasMedian) {
+    timelineKeys.forEach((k) => {
+      metricHeaders.push(`med_${k}`); // formatted human-friendly
+      metricHeaders.push(`med_${k}_hours`); // numeric (hours)
+    });
+    // Add median PR size
+    metricHeaders.push(`med_pull_request_size`);
+  }
   // percentile column uses configured percentile value in header, e.g. pct75_timeToReview
-  timelineKeys.forEach((k) => {
-    metricHeaders.push(`pct${pct}_${k}`); // formatted
-    metricHeaders.push(`pct${pct}_${k}_hours`); // numeric (hours)
-  });
+  if (hasPercentile) {
+    timelineKeys.forEach((k) => {
+      metricHeaders.push(`pct${pct}_${k}`); // formatted
+      metricHeaders.push(`pct${pct}_${k}_hours`); // numeric (hours)
+    });
+    // Add percentile PR size
+    metricHeaders.push(`pct${pct}_pull_request_size`);
+  }
 
   const headers = baseHeaders.concat(metricHeaders);
   const rows: string[] = [];
@@ -170,19 +192,38 @@ export const createTSV = (
       };
 
       // populate timeline metrics: average, median, percentile (raw minutes)
-      timelineKeys.forEach((k) => {
-        const avg = (collection.average as any)?.[k];
-        const med = (collection.median as any)?.[k];
-        const pctv = (collection.percentile as any)?.[k];
-        row[`avg_${k}`] = typeof avg === "number" ? formatMinutesDuration(avg) : "";
-  row[`avg_${k}_hours`] = typeof avg === "number" ? avg / 60 : "";
+      if (hasAverage) {
+        timelineKeys.forEach((k) => {
+          const avg = (collection.average as any)?.[k];
+          row[`avg_${k}`] = typeof avg === "number" ? formatMinutesDuration(avg) : "";
+          row[`avg_${k}_hours`] = typeof avg === "number" ? avg / 60 : "";
+        });
+        // Add average PR size
+        const avgPrSize = collection.average?.prSizePoints;
+        row[`avg_pull_request_size`] = typeof avgPrSize === "number" ? avgPrSize.toFixed(2) : "";
+      }
 
-        row[`med_${k}`] = typeof med === "number" ? formatMinutesDuration(med) : "";
-  row[`med_${k}_hours`] = typeof med === "number" ? med / 60 : "";
+      if (hasMedian) {
+        timelineKeys.forEach((k) => {
+          const med = (collection.median as any)?.[k];
+          row[`med_${k}`] = typeof med === "number" ? formatMinutesDuration(med) : "";
+          row[`med_${k}_hours`] = typeof med === "number" ? med / 60 : "";
+        });
+        // Add median PR size
+        const medPrSize = collection.median?.prSizePoints;
+        row[`med_pull_request_size`] = typeof medPrSize === "number" ? medPrSize.toFixed(2) : "";
+      }
 
-        row[`pct${pct}_${k}`] = typeof pctv === "number" ? formatMinutesDuration(pctv) : "";
-  row[`pct${pct}_${k}_hours`] = typeof pctv === "number" ? pctv / 60 : "";
-      });
+      if (hasPercentile) {
+        timelineKeys.forEach((k) => {
+          const pctv = (collection.percentile as any)?.[k];
+          row[`pct${pct}_${k}`] = typeof pctv === "number" ? formatMinutesDuration(pctv) : "";
+          row[`pct${pct}_${k}_hours`] = typeof pctv === "number" ? pctv / 60 : "";
+        });
+        // Add percentile PR size
+        const pctPrSize = collection.percentile?.prSizePoints;
+        row[`pct${pct}_pull_request_size`] = typeof pctPrSize === "number" ? pctPrSize.toFixed(2) : "";
+      }
 
       rows.push(flattenRow(row, headers));
     }

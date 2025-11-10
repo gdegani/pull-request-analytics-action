@@ -97,6 +97,11 @@ export const preparePullRequestTimeline = (
     pullRequestInfo?.deletions
   );
 
+  const sizePoints = calcPRsize(
+    pullRequestInfo?.additions,
+    pullRequestInfo?.deletions
+  );
+
   return {
     ...collection,
     timeToReview:
@@ -119,6 +124,7 @@ export const preparePullRequestTimeline = (
       typeof timeInDraft === "number"
         ? [...(collection?.timeInDraft || []), timeInDraft]
         : collection.timeInDraft,
+    prSizePoints: [...(collection?.prSizePoints || []), sizePoints],
     unreviewed:
       timeToReview !== null
         ? collection?.unreviewed || 0
@@ -158,10 +164,7 @@ export const preparePullRequestTimeline = (
         link: pullRequestInfo?._links?.html?.href,
         title: pullRequestInfo?.title,
         comments: pullRequestInfo?.review_comments,
-        sizePoints: calcPRsize(
-          pullRequestInfo?.additions,
-          pullRequestInfo?.deletions
-        ),
+        sizePoints,
         additions: pullRequestInfo?.additions || 0,
         author: pullRequestInfo?.user?.login || invalidUserLogin,
         deletions: pullRequestInfo?.deletions || 0,

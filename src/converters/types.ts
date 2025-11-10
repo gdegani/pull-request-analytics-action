@@ -14,6 +14,7 @@ type TimelinePoints = {
   timeFromOpenToResponse?: number;
   timeFromRepeatedRequestToResponse?: number;
   timeWaitingForRepeatedReview?: number;
+  prSizePoints?: number;
 };
 
 type DiscussionResult = {
@@ -96,6 +97,7 @@ export type Collection = {
     }
   >;
   prSizes?: string[];
+  prSizePoints?: number[];
   sizes?: Record<
     string,
     {
